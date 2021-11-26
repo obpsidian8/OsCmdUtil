@@ -104,8 +104,8 @@ class OSRunCmd:
 def main():
     pShell = OSRunCmd()
     # pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
-    # pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
-    pShell.run_cmd(cmd_to_run="ping google.com")
+    pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
+    # pShell.run_cmd(cmd_to_run="ping google.com")
     # pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
     return
 
