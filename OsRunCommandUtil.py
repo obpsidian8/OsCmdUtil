@@ -23,9 +23,9 @@ class OSRunCmd:
         :return:
         """
         print(f"Executing command: {cmd}")
-        o = os.system(f"{cmd}")
+        o_code = os.system(f"{cmd}")
         print(f"Command finished.")
-        print(f"Command output code: {o}")
+        print(f"Command output code: {o_code}")
 
     def _remove_output_file(self, file_name):
         """
@@ -74,7 +74,8 @@ class OSRunCmd:
         t = threading.Thread(target=self._run_cmd, args=(formatted_cmd,), daemon=True)
         t.start()
         if not time_limit:
-            time_limit = 5  # Does not matter what this is set to as long as it is greater than 0. The join will block the rest of the function until the command is executed anyhow.
+            time_limit = 5  # Does not matter what this is set to as long as it is greater than 0.
+            # The join will block the rest of the function in the thread until the command is executed anyhow.
             t.join()
 
         output = None
@@ -104,7 +105,8 @@ class OSRunCmd:
 def main():
     pShell = OSRunCmd()
     # pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
-    pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
+    # pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
+    pShell.run_cmd(cmd_to_run="ls -lst", time_limit=60)
     # pShell.run_cmd(cmd_to_run="ping google.com")
     # pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
     return

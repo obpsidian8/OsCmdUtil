@@ -77,7 +77,7 @@ def checkTaskCompletion(time_to_complete):
 
 def main():
     print(f"Starting process")
-    checkTaskCompletion(10)
+    checkTaskCompletion(18)
 
 
 if __name__ == "__main__":
