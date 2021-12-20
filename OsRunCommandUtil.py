@@ -1,6 +1,9 @@
 import os
 import threading
 import time
+from Utilities.LoggerConfig import setup_python_logging
+
+logger = setup_python_logging(__file__)
 
 
 class CmdParams:
@@ -22,10 +25,10 @@ class OSRunCmd:
         :param cmd:
         :return:
         """
-        print(f"Executing command: {cmd}")
+        logger.info(f"Executing command: {cmd}")
         o_code = os.system(f"{cmd}")
-        print(f"Command finished.")
-        print(f"Command output code: {o_code}")
+        logger.info(f"Command finished.")
+        logger.info(f"Command output code: {o_code}")
 
     def _remove_output_file(self, file_name):
         """
@@ -34,22 +37,22 @@ class OSRunCmd:
         overwrite previous file.
         :return:
         """
-        print(f'Removing output file {file_name}')
+        logger.info(f'Removing output file {file_name}')
         try:
             os.remove(file_name)
-            print(f"Output file {file_name} removed\n")
+            logger.info(f"Output file {file_name} removed\n")
         except Exception as e:
-            print(f"Error Details: {e}")
+            logger.info(f"Error Details: {e}")
 
     def _open_state_file(self, file_name):
         time.sleep(1)
         try:
-            print(f"Opening status file: {file_name}")
+            logger.info(f"Opening status file: {file_name}")
             with open(file_name, 'r+') as datafile:
                 output = datafile.read()
                 return output
         except Exception as e:
-            print(f"Error accessing status file {self.output_file_name}: Details: {e}")
+            logger.info(f"Error accessing status file {self.output_file_name}: Details: {e}")
             return None
 
     def run_cmd(self, cmd_to_run, time_limit=None):
@@ -61,8 +64,8 @@ class OSRunCmd:
         :param cmd_to_run: Command to run
         :return:
         """
-        start_time = time.time()
-        print(f"Starting Operation")
+
+        logger.info(f"Starting Operation")
         self._remove_output_file(self.output_file_name)
         self._remove_output_file(self.errror_file_name)
 
@@ -82,7 +85,7 @@ class OSRunCmd:
         errors = None
         timer_now = 0
         while timer_now <= time_limit and not output and not errors:
-            print(f"Output check has been running for {timer_now} seconds")
+            logger.info(f"Output check has been running for {timer_now} seconds")
             output = self._open_state_file(self.output_file_name)
             errors = self._open_state_file(self.errror_file_name)
             io_handler.output = output
@@ -90,25 +93,34 @@ class OSRunCmd:
             timer_now = timer_now + 1
 
         if not output and not errors and timer_now > time_limit:
-            print(f"Operation timed out after {timer_now} seconds")
+            logger.info(f"Operation timed out after {timer_now} seconds")
             return io_handler
-
-        end = time.time()
-
-        print(f"\nOperation completed in {round(end - start_time, 2)} seconds")
-        print(f"\nThe final output from {self.output_file_name} is:\t{io_handler.output}")
-        print(f"The errors are:\n\t{io_handler.errors}")
 
         return io_handler
 
 
 def main():
     pShell = OSRunCmd()
-    # pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
-    # pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
-    pShell.run_cmd(cmd_to_run="ls -lst", time_limit=60)
-    # pShell.run_cmd(cmd_to_run="ping google.com")
-    # pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
+    start_time = time.time()
+    # res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="ls -lst", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="dir", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="cat password.txt | sudo /etc/shadow", time_limit=20)
+    res = pShell.run_cmd(cmd_to_run="ping google.com && dir && ping yahoo.com", time_limit=12)
+    # res = pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
+    # res = pShell.run_cmd(cmd_to_run="python TestFile_ThreadingDemo.py")
+
+    end = time.time()
+    logger.info("")
+    logger.info(f"Operation completed in {round(end - start_time, 2)} seconds")
+    logger.info("")
+    logger.info(">>>>>>>>>>>>>>>>>>>>>> BEGIN OUTPUT FROM CMD >>>>>>>>>>>>>>>>>>>>>> ")
+    logger.info(f"{res.output}")
+    logger.info(">>>>>>>>>>>>>>>>>>>>>> END OUTPUT FROM CMD>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+
+    logger.info(f"The errors are:>>>>>>\n{res.errors}")
+
     return
 
 

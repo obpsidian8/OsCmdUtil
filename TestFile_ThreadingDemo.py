@@ -1,6 +1,11 @@
 import json
 import threading
 from time import sleep
+import logging
+import sys
+from Utilities.LoggerConfig import setup_python_logging
+
+logger = setup_python_logging(__file__)
 
 
 def randomTask(time_to_complete):
@@ -27,8 +32,8 @@ def randomTask(time_to_complete):
     max_time_for_task = 30
     counter = 0
     while counter <= max_time_for_task:
-        print(f"Operation will run for a maximum of {max_time_for_task} seconds")
-        print(f"Operation has been running for {counter} seconds")
+        logger.info(f"Operation will run for a maximum of {max_time_for_task} seconds")
+        logger.info(f"Operation has been running for {counter} seconds")
         # Update output file
         with open(output_file_name, "w+") as file:
             if counter < time_to_complete:
@@ -55,29 +60,35 @@ def checkTaskCompletion(time_to_complete):
     :param time_to_complete:
     :return:
     """
-    print(f"Starting task with completion time {time_to_complete}")
+    logger.info(f"Starting task with completion time {time_to_complete}")
     check_output = threading.Thread(target=randomTask, args=(time_to_complete,), daemon=True)
     check_output.start()
     output_file_name = 'output.json'
-    print(f'//////////////// Checking output beginning')
+    logger.info(f'//////////////// Checking output beginning')
     while True:
         try:
-            print(f"\nChecking process completion. Program will end on process completion")
+            logger.info("")
+            logger.info(f"Checking process completion. Program will end on process completion")
             sleep(1)
             with open(output_file_name, 'r') as file:
                 results = file.read()
                 json_result = json.loads(results)
 
             if json_result.get("status") == "Completed":
-                print(f"\nPROCESS HAS COMPLETED. Program will stop now.\n")
+                logger.info(f"PROCESS HAS COMPLETED. Program will stop now.")
                 return
         except Exception as e:
-            print(f"ERROR Occurred while checking output: {e}")
+            logger.exception(f"ERROR Occurred while checking output: {e}")
 
 
 def main():
-    print(f"Starting process")
-    checkTaskCompletion(18)
+    logger.info(f"Starting process")
+    checkTaskCompletion(8)
+
+
+def main2():
+    print("Hello")
+    logger.debug(f"Hello from logger")
 
 
 if __name__ == "__main__":
