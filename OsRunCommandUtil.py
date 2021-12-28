@@ -75,12 +75,17 @@ class OSRunCmd:
         formatted_cmd = f"({cmd_to_run}) > {self.output_file_name} 2> {self.errror_file_name}"
 
         t = threading.Thread(target=self._run_cmd, args=(formatted_cmd,), daemon=True)
+        # Thread is set to daemon to enforce the time limit specified. Without it, the main program will not exit if the output is still
+        # not found after the time limit is up. Main program will still be waiting for the command , which is being run in the thread to complete.
         t.start()
         if not time_limit:
             time_limit = 5  # Does not matter what this is set to as long as it is greater than 0.
             # The join will block the rest of the function in the thread until the command is executed anyhow.
+            # ** We used t.join because if there is no time limit specified, it means we want the command to run
+            # as long as it needs to to complete. So, we use join to block the rest of the program and let the command complete
             t.join()
 
+        # ** If there is not time limit specified, the program will have already ended before this point is reached
         output = None
         errors = None
         timer_now = 0
