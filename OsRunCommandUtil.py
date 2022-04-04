@@ -85,10 +85,13 @@ class OSRunCmd:
             # as long as it needs to to complete. So, we use join to block the rest of the program and let the command complete
             t.join()
 
-        # ** If there is not time limit specified, the program will have already ended before this point is reached
+        # ** If there is not time limit specified, the command passed to the thread will have already ended before this point is reached or it might still
+        # be running. If it is still running, the code below will then check if the timer is exceeded before the code completes.
         output = None
         errors = None
         timer_now = 0
+        # Now, we just continually check the output and error files if the output or errors have been written to them.
+        # Note: Os module will only write output to the files if the process is completed.
         while timer_now <= time_limit and not output and not errors:
             logger.info(f"Output check has been running for {timer_now} seconds")
             output = self._open_state_file(self.output_file_name)
