@@ -72,6 +72,7 @@ class OSRunCmd:
         # Set up output and error handler
         io_handler = CmdParams(cmd_to_run)
 
+        # Reformat command to redirect output and errors to (temp) files
         formatted_cmd = f"({cmd_to_run}) > {self.output_file_name} 2> {self.errror_file_name}"
 
         t = threading.Thread(target=self._run_cmd, args=(formatted_cmd,), daemon=True)
@@ -110,10 +111,10 @@ class OSRunCmd:
 def main():
     pShell = OSRunCmd()
     start_time = time.time()
-    # res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
+    res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="ls -lst", time_limit=60)
-    res = pShell.run_cmd(cmd_to_run="dir", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="dir", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="cat password.txt | sudo /etc/shadow", time_limit=20)
     # res = pShell.run_cmd(cmd_to_run="ping google.com && dir && ping yahoo.com", time_limit=12)
     # res = pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
@@ -127,7 +128,7 @@ def main():
     logger.info(f"{res.output}")
     logger.info(">>>>>>>>>>>>>>>>>>>>>> END OUTPUT FROM CMD>>>>>>>>>>>>>>>>>>>>>>>>>\n")
 
-    logger.info(f"The errors are:>>>>>>\n{res.errors}")
+    logger.info(f"The errors are: \n{res.errors}")
 
     return
 
