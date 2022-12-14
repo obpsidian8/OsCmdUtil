@@ -86,8 +86,11 @@ class OSRunCmd:
             # as long as it needs to to complete. So, we use join to block the rest of the program and let the command complete
             t.join()
 
-        # ** If there is not time limit specified, the command passed to the thread will have already ended before this point is reached or it might still
+        # ** If there is not time limit specified, the command passed to the thread might have already ended before this point is reached or it might still
         # be running. If it is still running, the code below will then check if the timer is exceeded before the code completes.
+
+        # Essentially, what we are doing here is delaying the exiting of the main program (by x seconds, where x is the given time limit) and checking
+        # if the command passed to the thread has written its output to the output files
         output = None
         errors = None
         timer_now = 0
@@ -111,11 +114,11 @@ class OSRunCmd:
 def main():
     pShell = OSRunCmd()
     start_time = time.time()
-    res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
-    # res = pShell.run_cmd(cmd_to_run="ls -lst", time_limit=60)
-    # res = pShell.run_cmd(cmd_to_run="dir", time_limit=60)
-    # res = pShell.run_cmd(cmd_to_run="cat password.txt | sudo /etc/shadow", time_limit=20)
+    # res = pShell.run_cmd(cmd_to_run="ls -lh", time_limit=60)
+    res = pShell.run_cmd(cmd_to_run="cd Utilities && dir", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="cd Utilities && ls -lh", time_limit=20)
     # res = pShell.run_cmd(cmd_to_run="ping google.com && dir && ping yahoo.com", time_limit=12)
     # res = pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
     # res = pShell.run_cmd(cmd_to_run="python TestFile_ThreadingDemo.py")
@@ -123,12 +126,8 @@ def main():
     end = time.time()
     print("")
     logger.info(f"Operation completed in {round(end - start_time, 2)} seconds")
-    print("")
-    logger.info(">>>>>>>>>>>>>>>>>>>>>> BEGIN OUTPUT FROM CMD >>>>>>>>>>>>>>>>>>>>>> ")
-    logger.info(f"{res.output}")
-    logger.info(">>>>>>>>>>>>>>>>>>>>>> END OUTPUT FROM CMD>>>>>>>>>>>>>>>>>>>>>>>>>\n")
-
-    logger.info(f"The errors are: \n{res.errors}")
+    logger.info(f"OUTPUT:\n{res.output}\n")
+    logger.info(f"ERRORS: \n{res.errors}")
 
     return
 
