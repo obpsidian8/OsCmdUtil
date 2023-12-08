@@ -14,7 +14,6 @@ class CmdParams:
 
 
 class OSRunCmd:
-
     def __init__(self):
         self.output_file_name = "output_from_running_cmd.txt"
         self.errror_file_name = "errors_from_running_cmd.txt"
@@ -27,8 +26,7 @@ class OSRunCmd:
         """
         logger.info(f"Executing command: {cmd}")
         o_code = os.system(f"{cmd}")
-        logger.info(f"Command finished.")
-        logger.info(f"Command output code: {o_code}")
+        logger.info(f"Command finished. Output code: {o_code}")
 
     def _remove_output_file(self, file_name):
         """
@@ -37,7 +35,7 @@ class OSRunCmd:
         overwrite previous file.
         :return:
         """
-        logger.info(f'Removing output file {file_name}')
+        logger.info(f"Removing output file {file_name}")
         try:
             os.remove(file_name)
             logger.info(f"Output file {file_name} removed\n")
@@ -48,7 +46,7 @@ class OSRunCmd:
         time.sleep(1)
         try:
             logger.info(f"Opening status file: {file_name}")
-            with open(file_name, 'r+') as datafile:
+            with open(file_name, "r+") as datafile:
                 output = datafile.read()
                 return output
         except Exception as e:
@@ -65,7 +63,6 @@ class OSRunCmd:
         :return:
         """
 
-        logger.info(f"Starting Operation")
         self._remove_output_file(self.output_file_name)
         self._remove_output_file(self.errror_file_name)
 
@@ -73,7 +70,9 @@ class OSRunCmd:
         io_handler = CmdParams(cmd_to_run)
 
         # Reformat command to redirect output and errors to (temp) files
-        formatted_cmd = f"({cmd_to_run}) > {self.output_file_name} 2> {self.errror_file_name}"
+        formatted_cmd = (
+            f"({cmd_to_run}) > {self.output_file_name} 2> {self.errror_file_name}"
+        )
 
         t = threading.Thread(target=self._run_cmd, args=(formatted_cmd,), daemon=True)
         # Thread is set to daemon to enforce the time limit specified. Without it, the main program will not exit if the output is still
@@ -86,6 +85,9 @@ class OSRunCmd:
             # as long as it needs to to complete. So, we use join to block the rest of the program and let the command complete
             t.join()
 
+        # Another way to implement no time limit would be to just set time limit to positive infinity, then keep checking for the output and not
+        # even use a join at all.
+
         # ** If there is not time limit specified, the command passed to the thread might have already ended before this point is reached or it might still
         # be running. If it is still running, the code below will then check if the timer is exceeded before the code completes.
 
@@ -93,9 +95,10 @@ class OSRunCmd:
         # if the command passed to the thread has written its output to the output files
         output = None
         errors = None
-        timer_now = 0
+        timer_now = 1
         # Now, we just continually check the output and error files if the output or errors have been written to them.
         # Note: Os module will only write output to the files if the process is completed.
+        time.sleep(5)
         while timer_now <= time_limit and not output and not errors:
             logger.info(f"Output check has been running for {timer_now} seconds")
             output = self._open_state_file(self.output_file_name)
@@ -114,10 +117,10 @@ class OSRunCmd:
 def main():
     pShell = OSRunCmd()
     start_time = time.time()
-    # res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
+    res = pShell.run_cmd(cmd_to_run="ping yahoo.com", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="virsh --list all", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="ls -lh", time_limit=60)
-    res = pShell.run_cmd(cmd_to_run="cd Utilities && dir", time_limit=60)
+    # res = pShell.run_cmd(cmd_to_run="cd Utilities && dir", time_limit=60)
     # res = pShell.run_cmd(cmd_to_run="cd Utilities && ls -lh", time_limit=20)
     # res = pShell.run_cmd(cmd_to_run="ping google.com && dir && ping yahoo.com", time_limit=12)
     # res = pShell.run_cmd(cmd_to_run="AskQ.bat < ans.txt")
