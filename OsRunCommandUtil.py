@@ -77,6 +77,7 @@ class OSRunCmd:
         t = threading.Thread(target=self._run_cmd, args=(formatted_cmd,), daemon=True)
         # Thread is set to daemon to enforce the time limit specified. Without it, the main program will not exit if the output is still
         # not found after the time limit is up. Main program will still be waiting for the command , which is being run in the thread to complete.
+        # We want the main program to be free to do something else while we run the command in a thread. 
         t.start()
         if not time_limit:
             time_limit = 5  # Does not matter what this is set to as long as it is greater than 0.
